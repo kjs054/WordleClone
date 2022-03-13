@@ -3,94 +3,100 @@ import ReactDOM from "react-dom";
 import "./index.css"
 
 const WORD_LENGTH = 5;
+const ANSWER = "hello"
+const MAX_GUESSES = 6
+const ALLOWED_KEYS = [
+  "q",
+  "w",
+  "e",
+  "r",
+  "t",
+  "y",
+  "u",
+  "i",
+  "o",
+  "p",
+  "a",
+  "s",
+  "d",
+  "f",
+  "g",
+  "h",
+  "j",
+  "k",
+  "Enter",
+  "l",
+  "z",
+  "x",
+  "c",
+  "Backspace",
+  "v",
+  "b",
+  "n",
+  "m",
+]
 
 const App = () => {
-
-  const guess = useGuess();
+  
+  const [guess] = useGuess();
 
   return (
     <div id="container">
       <div id="header">
-        <h1>Wordle Max</h1>
+        <h1>Infinitordle</h1>
       </div>
       <div id="gameBoard">
-        <WordRow></WordRow>
-        <WordRow></WordRow>
-        <WordRow></WordRow>
-        <WordRow></WordRow>
-        <WordRow></WordRow>
-        <WordRow></WordRow>
+        {
+          Array(MAX_GUESSES).fill(0).map(() => (
+            <WordRow guess={guess}></WordRow>
+          ))
+        }
       </div>
       <KeyBoard></KeyBoard>
     </div>
   );
 }
 
-const LetterBox = () => {
+const LetterBox = ({ value }) => {
   return (
-    <div class="letterbox">
-      
-    </div>
+    <div class="letterbox">{value}</div>
   );
 }
 
-const WordRow = () => {
+const WordRow = ({guess = ""}) => {
+  const lettersRemain = WORD_LENGTH - guess.length;
+  const letters = guess.split("").concat(Array(lettersRemain).fill(""))
   return (
     <div class="wordRow">
-      <LetterBox></LetterBox>
-      <LetterBox></LetterBox>
-      <LetterBox></LetterBox>
-      <LetterBox></LetterBox>
-      <LetterBox></LetterBox>
+      {letters.map((letter) => (
+        <LetterBox value={letter}></LetterBox>
+      ))}
     </div>
   )
 }
 
 const KeyBoard = () => {
-  const keys = [
-    "Q",
-    "W",
-    "E",
-    "R",
-    "T",
-    "Y",
-    "U",
-    "I",
-    "O",
-    "P",
-    "A",
-    "S",
-    "D",
-    "F",
-    "G",
-    "H",
-    "J",
-    "K",
-    "ENTER",
-    "L",
-    "Z",
-    "X",
-    "C",
-    "Backspace",
-    "V",
-    "B",
-    "N",
-    "M",
-  ]
-
   return (<div id="keyboard">
-    {keys.map((key) => (
-      <button class="keyBox">{key}</button>
+    {ALLOWED_KEYS.map((key) => (
+      <button class="keyBox">{key.toUpperCase()}</button>
     ))}
   </div>)
 };
 
+
+
 function useGuess() {
-  
   const [guess, setGuess] = useState("");
   useEffect(() => {
     const onKeyDown = ({ key }) => {
+      if (!ALLOWED_KEYS.includes(key)){
+        console.log(key)
+        return
+      }
       setGuess((curGuess) => {
+        if (key == "Backspace") {
+          return curGuess.slice(0, -1)
+        }
         if (curGuess.length == WORD_LENGTH) {
           return curGuess
         } else {
@@ -104,6 +110,7 @@ function useGuess() {
       document.removeEventListener('keydown', onkeydown)
     }
   }, [])  
+  return [guess];
 }
 
 ReactDOM.render(<App />, document.getElementById("root"))
